@@ -6,7 +6,7 @@ Accepted SQL and Pandas solutions for [saumya1234](https://leetcode.com/u/saumya
 - `my-submissions/<problem>/solution.py` contains the latest accepted Pandas solution.
 - Other SQL dialects have separate `solution.<language>.sql` files.
 - `my-submissions/<problem>/submissions/` preserves each accepted submission by its LeetCode ID, including repeated submissions on the same day.
-- `.leetcode-sync.json` records archived IDs, source links, timestamps, and file hashes. Each run checks the full submission history and repairs missing archive files.
+- `.leetcode-sync.json` records archived IDs, source links, timestamps, and file hashes. Each run checks the full submission history, downloads the newest accepted submission to verify API access, and repairs missing archive files.
 
 The **Sync Leetcode** workflow runs hourly at minute 17 UTC. GitHub may delay scheduled jobs. For an immediate update, open **Actions → Sync Leetcode → Run workflow** on `main`.
 

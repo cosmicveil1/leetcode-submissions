@@ -154,6 +154,10 @@ def archive(root, client, submissions):
     records = manifest["submissions"]
     added = 0
     latest = {}
+    newest_id = None
+    if submissions:
+        newest = max(submissions, key=lambda s: (int(s["timestamp"]), int(s["id"])))
+        newest_id = str(newest["id"])
     for submission in submissions:
         sid, language, slug = str(submission["id"]), submission["lang"], submission["titleSlug"]
         if not sid.isdigit() or language not in LANGUAGES:
@@ -163,7 +167,8 @@ def archive(root, client, submissions):
         if archive_path and not archive_path.resolve().is_relative_to((root / "my-submissions").resolve()):
             raise SyncError("The manifest contains an archive path outside my-submissions.")
         valid = bool(archive_path and archive_path.is_file() and hashlib.sha256(archive_path.read_bytes()).hexdigest() == record.get("sha256"))
-        if not valid:
+        # Verify a live code download on every run, even when all IDs are archived.
+        if not valid or sid == newest_id:
             details = client.query(DETAIL_QUERY, {"submissionId": int(sid)}).get("submissionDetails")
             if not isinstance(details, dict) or not isinstance(details.get("code"), str):
                 raise SyncError(f"Could not retrieve accepted submission {sid}; no submissions were marked synced.")
@@ -184,7 +189,7 @@ def archive(root, client, submissions):
                 "sha256": hashlib.sha256(archive_path.read_bytes()).hexdigest(),
             }
             records[sid] = record
-            added += 1
+            added += int(not valid)
             time.sleep(0.5)
         record["timestamp"] = int(submission["timestamp"])
         record.pop("timestamp_precision", None)
