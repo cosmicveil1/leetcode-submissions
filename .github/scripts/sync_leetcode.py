@@ -186,6 +186,8 @@ def archive(root, client, submissions):
             records[sid] = record
             added += 1
             time.sleep(0.5)
+        record["timestamp"] = int(submission["timestamp"])
+        record.pop("timestamp_precision", None)
         key = (slug, language)
         previous = latest.get(key)
         if previous is None or (record["timestamp"], int(sid)) > (previous["timestamp"], int(previous["id"])):

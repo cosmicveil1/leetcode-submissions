@@ -66,6 +66,14 @@ class SyncTests(unittest.TestCase):
             self.assertEqual(len(records), 3)
             self.assertEqual(archive(root, client, rows), (0, 3, 2))
             self.assertEqual(client.detail_calls, [2, 1, 3])
+            records["2"]["timestamp"] = 0
+            records["2"]["timestamp_precision"] = "minute"
+            (root / ".leetcode-sync.json").write_text(json.dumps({"version": 1, "submissions": records}))
+            self.assertEqual(archive(root, client, rows), (0, 3, 2))
+            refreshed = json.loads((root / ".leetcode-sync.json").read_text())["submissions"]["2"]
+            self.assertEqual(refreshed["timestamp"], 2)
+            self.assertNotIn("timestamp_precision", refreshed)
+            self.assertEqual((folder / "solution.py").read_text(), "code 2\n")
             missing = root / records["1"]["archive_path"]
             missing.unlink()
             self.assertEqual(archive(root, client, rows)[0], 1)
